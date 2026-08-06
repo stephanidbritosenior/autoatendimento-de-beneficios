@@ -1,0 +1,272 @@
+/* ─────────────────────────────────────────────────────────────────
+ * Senior Design System (SDS) — Foundations
+ * Source: angular-components-develop + SDS Componentes Figma + Notion
+ * ───────────────────────────────────────────────────────────────── */
+
+/* Webfonts — Open Sans is the primary product face.
+   Loaded from local variable-font files in fonts/. */
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 300 800;
+    font-stretch: 75% 125%;
+    font-display: swap;
+    src: url("fonts/OpenSans-VariableFont_wdth_wght.ttf") format("truetype-variations"),
+         url("fonts/OpenSans-VariableFont_wdth_wght.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Open Sans";
+    font-style: italic;
+    font-weight: 300 800;
+    font-stretch: 75% 125%;
+    font-display: swap;
+    src: url("fonts/OpenSans-Italic-VariableFont_wdth_wght.ttf") format("truetype-variations"),
+         url("fonts/OpenSans-Italic-VariableFont_wdth_wght.ttf") format("truetype");
+}
+/* Inter — used only for the module title in the Page header (Inter 24px).
+   Self-hosted from fonts/ (variable opsz + wght). */
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("fonts/Inter-VariableFont_opsz_wght.ttf") format("truetype-variations"),
+         url("fonts/Inter-VariableFont_opsz_wght.ttf") format("truetype");
+}
+
+:root {
+    /* ─────────────────────────────────────────────────────────────
+       1. COLOR — Primary
+       ───────────────────────────────────────────────────────────── */
+    --sds-primary:            #428BCA;  /* azul-laguna — primary actions, focus, links */
+    --sds-primary-hover:      #3079b9;  /* darken(15%) */
+    --sds-primary-pressed:    #285f92;  /* darken(20%) */
+    --sds-primary-secondary:  #7892A1;  /* Spotlight CTA, hover acinzentado */
+
+    /* Senior brand accent — used on the loading "logo indicator" pulse.
+       Not used as a UI surface — keep for logos & loaders only. */
+    --sds-senior-green:       #00C89A;
+    --sds-senior-green-glow:  #00c89ab3;
+
+    /* Focus ring (browser-native cyan stroke used on s-button:focus) */
+    --sds-focus:              #22DCE6;
+
+    /* ─────────────────────────────────────────────────────────────
+       2. COLOR — Grayscale (neutral ramp)
+       ───────────────────────────────────────────────────────────── */
+    --sds-grayscale-0:    #FFFFFF;  /* surface – cards, panels, modals */
+    --sds-grayscale-5:    #FBFAFC;  /* disabled bg */
+    --sds-grayscale-10:   #EEEBF2;  /* hover, accordion expanded, "today" cell */
+    --sds-grayscale-20:   #DEDCE5;  /* disabled border, separators */
+    --sds-grayscale-30:   #C1C1CC;  /* default border */
+    --sds-grayscale-40:   #A5A5B2;  /* switch off, secondary icons */
+    --sds-grayscale-50:   #888B99;  /* hover borders */
+    --sds-grayscale-60:   #6E7280;  /* label-lighter, placeholders */
+    --sds-grayscale-80:   #212533;  /* primary text (label-default) */
+    --sds-grayscale-100:  #0E1119;  /* max contrast, tooltip body */
+
+    /* ─────────────────────────────────────────────────────────────
+       3. COLOR — Criticality / Semantics
+       ───────────────────────────────────────────────────────────── */
+    --sds-criticality-blue:    #428BCA;  /* info, selection */
+    --sds-criticality-green:   #0C9348;  /* success */
+    --sds-criticality-yellow:  #FCBF10;  /* warning (mid) */
+    --sds-criticality-orange:  #F8931F;  /* warning (heavy) — Panel severity warn */
+    --sds-criticality-red:     #C13018;  /* error, destructive */
+    --sds-criticality-danger-bg: #9C3A3A; /* darker red used as Button danger bg */
+
+    /* Badge background/border pairs (chips/pills) */
+    --sds-badge-red-bg:     #FCD2D2;   --sds-badge-red-border:    #C13018;
+    --sds-badge-orange-bg:  #FCE3BA;   --sds-badge-orange-border: #F8931F;
+    --sds-badge-yellow-bg:  #FEF4E3;   --sds-badge-yellow-border: #FCBF10;
+    --sds-badge-blue-bg:    #D5E8EC;   --sds-badge-blue-border:   #428BCA;
+    --sds-badge-green-bg:   #E6FFB3;   --sds-badge-green-border:  #0C9348;
+    --sds-badge-gray-bg:    #E5EAEA;   --sds-badge-gray-border:   #697882;
+
+    /* Brand sub-palette (used sparingly: badges, chat answer, slot bg) */
+    --sds-hippie-blue-100:  #D5E8EC;   /* badge bg */
+    --sds-hippie-blue-500:  #67ACBC;   /* soft accent */
+    --sds-tarawera-500:     #063951;   /* checked-hover for Radio/Checkbox */
+    --sds-clairvoyant-100:  #CABBD0;   /* chat answer bubble */
+    --sds-clairvoyant-50:   #EDE8EF;   /* slot background */
+
+    /* ─────────────────────────────────────────────────────────────
+       4. COLOR — Semantic foreground / surface
+       ───────────────────────────────────────────────────────────── */
+    --sds-fg-default:     #212533;   /* main text */
+    --sds-fg-muted:       #6E7280;   /* labels, captions */
+    --sds-fg-subtle:      #888B99;   /* helper text */
+    --sds-fg-disabled:    #C1C1CC;
+    --sds-fg-emphasis:    #428BCA;   /* links */
+    --sds-fg-on-primary:  #FFFFFF;
+    --sds-fg-error:       #C13018;
+
+    --sds-bg-page:        #F5F6F7;   /* page background */
+    --sds-bg-surface:     #FFFFFF;   /* card / panel / modal */
+    --sds-bg-hover:       #EEEBF2;
+    --sds-bg-disabled:    #FBFAFC;
+
+    --sds-border-default: #C1C1CC;
+    --sds-border-subtle:  #DEDCE5;
+    --sds-border-strong:  #888B99;
+    --sds-border-focus:   #428BCA;
+
+    /* Tooltip body */
+    --sds-tooltip-bg: rgba(14, 17, 25, 0.9);
+    --sds-tooltip-fg: #FFFFFF;
+
+    /* ─────────────────────────────────────────────────────────────
+       5. TYPE
+       ───────────────────────────────────────────────────────────── */
+    --sds-font-family:  "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --sds-font-mono:    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+    /* Weights actually used by the system */
+    --sds-fw-regular: 400;
+    --sds-fw-semibold: 600;
+    --sds-fw-bold: 700;
+
+    /* Size ramp — body is 14px; helper is 12px. Big sizes only in marketing. */
+    --sds-fs-helper:   12px;  /* badges, chips, helper text, info */
+    --sds-fs-body:     14px;  /* default — corpo, inputs, botões, labels */
+    --sds-fs-section:  16px;  /* topbar title secondary, panel header */
+    --sds-fs-title:    20px;  /* page section title */
+    --sds-fs-headline: 22px;  /* in-product headline */
+    --sds-fs-display:  34px;  /* hero, semibold */
+
+    --sds-lh-tight:  1.2;
+    --sds-lh-normal: 1.5;
+
+    /* ─────────────────────────────────────────────────────────────
+       6. SPACING (8-pt-ish scale)
+       ───────────────────────────────────────────────────────────── */
+    --sds-space-xxsmall: 4px;
+    --sds-space-xsmall:  8px;
+    --sds-space-small:   12px;
+    --sds-space-default: 16px;
+    --sds-space-medium:  20px;   /* = Checkbox / Radio size */
+    --sds-space-xmedium: 24px;   /* = Switch height */
+    --sds-space-big:     32px;
+    --sds-space-xbig:    40px;   /* = Switch width */
+
+    /* ─────────────────────────────────────────────────────────────
+       7. RADIUS
+       ───────────────────────────────────────────────────────────── */
+    --sds-radius-xsmall: 2px;    /* Tooltip */
+    --sds-radius-small:  3px;    /* Inputs, dropdowns */
+    --sds-radius-medium: 4px;    /* Buttons, badges */
+    --sds-radius-xbig:   6px;    /* Fieldset, Radio dot */
+    --sds-radius-xxbig:  10px;   /* Switch circle, Radio */
+    --sds-radius-huge:   15px;   /* Switch toggle */
+    --sds-radius-pill:   9999px; /* badges pill, auxiliary buttons */
+
+    /* ─────────────────────────────────────────────────────────────
+       8. SHADOW / ELEVATION
+       ───────────────────────────────────────────────────────────── */
+    /* dp01 — tooltip / overlay leve */
+    --sds-shadow-1: 0px 1px 2.5px rgba(0, 0, 0, 0.25);
+    /* dp02 — dropdown (Select, Autocomplete) */
+    --sds-shadow-2: 0px 4px 2.5px rgba(0, 0, 0, 0.20);
+    /* dp04 — toast / hovered card */
+    --sds-shadow-4: 0px 4px 8px rgba(0, 0, 0, 0.08),
+                    0px 2px 4px rgba(0, 0, 0, 0.04);
+    /* dp06 — Spotlight */
+    --sds-shadow-6: 0px 3px 5px rgba(0, 0, 0, 0.20),
+                    0px 1px 18px rgba(0, 0, 0, 0.12),
+                    0px 6px 10px rgba(0, 0, 0, 0.14);
+
+    /* ─────────────────────────────────────────────────────────────
+       9. COMPONENT-SPECIFIC TOKENS
+       ───────────────────────────────────────────────────────────── */
+    --sds-control-height:        35px;   /* Textfield, Button, Select */
+    --sds-control-height-small:  25px;
+    --sds-checkbox-size:         20px;
+    --sds-switch-w:              40px;
+    --sds-switch-h:              24px;
+    --sds-topbar-h:              64px;  /* per Figma: 64, not 70 */
+    --sds-navbar-w:              64px;
+
+    /* Navbar dark rail */
+    --sds-navbar-bg:             #454545;
+    --sds-navbar-bg-active:      #303030;
+    --sds-navbar-bg-hover:       #4D4D4D;
+    --sds-navbar-brand-bg:       #009999;  /* placeholder teal in Figma; per-app brand override */
+
+    /* Subtle topbar shadow (replaces border-bottom) */
+    --sds-topbar-shadow:
+        0 1px 3px rgba(0,0,0,0.08),
+        0 2px 1px rgba(0,0,0,0.04),
+        0 1px 1px rgba(0,0,0,0.08);
+
+    /* Workspace switch focus-tint surface */
+    --sds-surface-tint:          #F1F7F8;
+
+    /* Motion */
+    --sds-ease:         200ms ease-out;
+    --sds-ease-slow:    500ms ease;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   SEMANTIC TYPE PRESETS — apply directly to elements
+   ────────────────────────────────────────────────────────────────── */
+.sds-display {
+    font: var(--sds-fw-semibold) var(--sds-fs-display) / var(--sds-lh-tight) var(--sds-font-family);
+    color: var(--sds-fg-default);
+}
+.sds-headline {
+    font: var(--sds-fw-bold) var(--sds-fs-headline) / var(--sds-lh-tight) var(--sds-font-family);
+    color: var(--sds-fg-default);
+}
+.sds-title {
+    font: var(--sds-fw-bold) var(--sds-fs-title) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-default);
+}
+.sds-section-title {
+    font: var(--sds-fw-bold) var(--sds-fs-section) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-default);
+}
+.sds-body {
+    font: var(--sds-fw-regular) var(--sds-fs-body) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-default);
+}
+.sds-body-bold {
+    font: var(--sds-fw-bold) var(--sds-fs-body) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-default);
+}
+.sds-label {
+    /* Field label — ALWAYS regular (never bold) — sentence case, no colon. */
+    font: var(--sds-fw-regular) var(--sds-fs-body) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-muted);
+}
+.sds-helper {
+    font: var(--sds-fw-regular) var(--sds-fs-helper) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-subtle);
+}
+.sds-helper-error {
+    font: var(--sds-fw-regular) var(--sds-fs-helper) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-error);
+}
+.sds-link {
+    font: var(--sds-fw-regular) var(--sds-fs-body) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-emphasis);
+    text-decoration: none;
+}
+.sds-link:hover { text-decoration: underline; }
+
+/* Label Value — rótulo regular, valor bold. Never same weight. */
+.sds-lv-label {
+    font: var(--sds-fw-regular) var(--sds-fs-body) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-muted);
+}
+.sds-lv-value {
+    font: var(--sds-fw-bold) var(--sds-fs-body) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-default);
+}
+
+/* Accordion header — Bold + UPPERCASE */
+.sds-accordion-header {
+    font: var(--sds-fw-bold) var(--sds-fs-body) / var(--sds-lh-normal) var(--sds-font-family);
+    color: var(--sds-fg-default);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
