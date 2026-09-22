@@ -844,6 +844,8 @@
 
 .soft-purple{background:#EDE8F8;color:#6B4FBB}
 .np-actions-head>button{flex:0 0 auto;white-space:nowrap}
+.aim-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.aim-grid2 .aim-text{width:100%}
 
 .pol-tabsbar{padding-bottom:0}
 

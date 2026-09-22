@@ -26,6 +26,10 @@ const BSPECS = [
       actions:[ {label:'Aderir', tipo:'Adesão'}, {label:'Indicar Beneficiários', tipo:'Inclusão'} ],
       required:[ {n:'CPF', s:'Documento de identificação fiscal'}, {n:'Ficha de beneficiários', s:'Indicação dos beneficiários do seguro'} ],
       downloads:[ {n:'Ficha de Indicação de Beneficiários', s:'Indique quem receberá o seguro'}, {n:'Termo de Adesão', s:'Termo de aceite do benefício'} ] },
+    { id:'edu', name:'Auxílio Educação', tile:'tile-purple', icon:'fa-graduation-cap', desc:'Subsídio para cursos e idiomas',
+      actions:[ {label:'Solicitar auxílio', tipo:'Inclusão'}, {label:'Cancelar auxílio', tipo:'Exclusão'} ],
+      required:[],
+      downloads:[ {n:'Formulário de Solicitação de Auxílio Educação', s:'Dados do curso, da instituição e valores'}, {n:'Termo de Ciência do Auxílio Educação', s:'Aceite das condições da política'} ] },
     { id:'creche', name:'Auxílio Creche', tile:'tile-teal', icon:'fa-baby', desc:'Reembolso de creche para filhos até 5 anos',
       actions:[ {label:'Concluir adesão', tipo:'Adesão'} ],
       required:[ {n:'Certidão de Nascimento', s:'Do(s) filho(s) até 5 anos'}, {n:'Comprovante de matrícula', s:'Creche ou pré-escola'}, {n:'Recibo de pagamento', s:'Mensalidade da creche'} ],
@@ -49,9 +53,29 @@ const DEPS = [
     { id:'d2', nome:'Pedro Henrique Lima', rel:'Filho(a)', cpf:'987.654.321-09', nasc:'21/08/2015' },
     { id:'d3', nome:'Ana Clara Lima',      rel:'Filho(a)', cpf:'456.789.123-45', nasc:'29/11/2018' },
 ];
-const initForm = () => ({ portab: null, operadoraAtual: '', operadora: '', abrangencia: '', acomodacao: '', planoTipo: '', selectedDeps: [], newDeps: [], excMotivo: '', excConfirm: false, revConfirm: false, linha: '', outroMeio: null, qtdPasses: '', possuiCartao: null, tipoCartao: null, cartaoUnico: '', cartoes: {} });
+const initForm = () => ({ portab: null, operadoraAtual: '', operadora: '', abrangencia: '', acomodacao: '', planoTipo: '', selectedDeps: [], newDeps: [], excMotivo: '', excConfirm: false, revConfirm: false, eduModalidade: '', eduInstituicao: '', eduCurso: '', eduInicio: '', eduTermino: '', eduValor: '', eduPeriodicidade: '', linha: '', outroMeio: null, qtdPasses: '', possuiCartao: null, tipoCartao: null, cartaoUnico: '', cartoes: {} });
 const MOTIVOS_EXCLUSAO = ['Não utilizo mais o benefício', 'Custo elevado / desconto em folha', 'Contratei plano por conta própria', 'Mudança de operadora', 'Desligamento de dependente', 'Outro'];
-const CARD_TO_SPEC = { vt: 'vt', ps: 'saude', po: 'odonto', refeicao: 'refeicao', seguro: 'seguro' };
+const CARD_TO_SPEC = { vt: 'vt', ps: 'saude', po: 'odonto', refeicao: 'refeicao', seguro: 'seguro', edu: 'edu' };
+
+/* Modalidades do Auxílio Educação — espelham a política configurada pelo RH */
+const EDU_MODS_FALLBACK = [
+    { nome: 'Idiomas', status: 'Ativa', aprovacaoGestor: 'Sim', subsidio: 'Sim', tipoSubsidio: 'Percentual', percentual: '50', temTeto: true, teto: '400,00',
+      condicoes: 'Encaminhar comprovante de matrícula e contrato de pagamento da escola de idiomas.', documentos: ['Comprovante de matrícula', 'Contrato de pagamento'] },
+    { nome: 'Graduação', status: 'Ativa', aprovacaoGestor: 'Sim', subsidio: 'Sim', tipoSubsidio: 'Percentual', percentual: '30', temTeto: false, teto: '',
+      condicoes: 'Curso reconhecido pelo MEC e aderente à área de atuação do colaborador.', documentos: ['Comprovante de matrícula', 'Boleto da mensalidade'] },
+];
+const eduMods = () => ((window.EDU_SEED_MODALIDADES || EDU_MODS_FALLBACK).filter(m => m.status === 'Ativa'));
+const eduModOf = form => eduMods().find(m => m.nome === form.eduModalidade) || null;
+const eduSubText = m => {
+    if (!m || m.subsidio !== 'Sim') return 'Sem subsídio financeiro';
+    const p = m.tipoSubsidio === 'Percentual' ? `${m.percentual || '—'}% subsidiado` : `R$ ${m.valorFixo || '—'} (valor fixo)`;
+    return p + (m.temTeto ? ` · teto de R$ ${m.teto || '—'}` : '');
+};
+const eduDocsOf = form => {
+    const m = eduModOf(form);
+    return ((m && m.documentos) || []).map(d => ({ n: d, s: `Exigido para a modalidade ${m.nome}` }));
+};
+const EDU_PERIODICIDADE = ['Mensal', 'Semestral', 'Anual', 'Pagamento único'];
 const MEIOS_TRANSPORTE = ['Ônibus', 'Metrô', 'Carro', 'Fretado', 'Trem'];
 const LINHAS_TRANSPORTE = [
     { id: 'blumob',    nome: 'BLUMOB',     area: 'Blumenau/SC' },
@@ -75,7 +99,7 @@ const MENUS = {
 };
 
 const AI_GROUND = {
-    colaborador: `Você atende um COLABORADOR. Benefícios: Vale-Transporte (ativo, 6% do salário), Plano de Saúde (ativo, individual/familiar), Plano Odontológico (disponível), Vale-Refeição (R$ 35/dia), Seguro de Vida (até R$ 200 mil), Auxílio Creche (filhos até 5 anos). Para aderir, oriente o colaborador a usar a opção "Fazer solicitação de benefício" do assistente.`,
+    colaborador: `Você atende um COLABORADOR. Benefícios: Vale-Transporte (ativo, 6% do salário), Plano de Saúde (ativo, individual/familiar), Plano Odontológico (disponível), Vale-Refeição (R$ 35/dia), Seguro de Vida (até R$ 200 mil), Auxílio Creche (filhos até 5 anos), Auxílio Educação (modalidades Idiomas — 50% com teto de R$ 400 — e Graduação — 30%; exige aprovação do gestor). Para aderir, oriente o colaborador a usar a opção "Fazer solicitação de benefício" do assistente.`,
     analista: `Você atende um ANALISTA DE RH. 3 políticas (Vale-Transporte e Plano de Saúde ativas; Plano Odontológico inativa), 450 beneficiários, adesão geral 78%, custo mensal R$ 312 mil. Adesão: Saúde 92%, VT 78%, Refeição 64%, Odonto 41%, Seguro 28%. Há 3 solicitações pendentes de aprovação.`,
 };
 
@@ -349,7 +373,7 @@ function MsgView({ m, onMenu, onBenefit, onAction, uploads, onUpload, form, setF
                 <div className="aim-note"><i className="fa fa-info-circle" /> Confirme o endereço antes de prosseguir. Em caso de divergência, entre em contato com o RH.</div>
                 <div className="aim-foot">
                     <Button priority="default" onClick={backToMenu}>Cancelar</Button>
-                    <Button priority="primary" onClick={() => add({ from: 'bot', kind: m.tipo === 'Exclusão' ? 'exclusao' : (b.id === 'vt' ? 'linhaTransporte' : 'docsRequired'), benefitId: b.id, tipo: m.tipo })}>Continuar</Button>
+                    <Button priority="primary" onClick={() => add({ from: 'bot', kind: m.tipo === 'Exclusão' ? 'exclusao' : (b.id === 'vt' ? 'linhaTransporte' : b.id === 'edu' ? 'eduModalidade' : 'docsRequired'), benefitId: b.id, tipo: m.tipo })}>Continuar</Button>
                 </div>
             </div>
             <Time />
@@ -664,18 +688,93 @@ function MsgView({ m, onMenu, onBenefit, onAction, uploads, onUpload, form, setF
         </>;
     }
 
+    if (m.kind === 'eduModalidade') {
+        const b = specOf(m.benefitId);
+        const sel = form.eduModalidade;
+        const mod = eduModOf(form);
+        return <>
+            <div className="aim-bot">
+                <div className="aim-card-title"><i className="fa fa-graduation-cap" /> Qual modalidade do Auxílio Educação você quer solicitar?</div>
+                {eduMods().map(o => (
+                    <button key={o.nome} className={`aim-linecard ${sel === o.nome ? 'sel' : ''}`} onClick={() => setForm(f => ({ ...f, eduModalidade: o.nome }))}>
+                        <div className="lc-name">{o.nome}</div>
+                        <div className="lc-area">{eduSubText(o)}</div>
+                    </button>
+                ))}
+                {mod && <div className="aim-box" style={{ marginTop: 14 }}>
+                    <div className="aim-uplabel" style={{ marginTop: 0 }}>Condições da modalidade {mod.nome}</div>
+                    <div style={{ fontSize: 13.5, color: 'var(--sds-fg-muted)' }}>{mod.condicoes}</div>
+                    <div className="aim-divider" />
+                    <span className="aim-chip"><i className="fa fa-percent" /> {eduSubText(mod)}</span>
+                    <span className="aim-chip"><i className="fa fa-user-check" /> Aprovação do gestor: {mod.aprovacaoGestor}</span>
+                </div>}
+                <div className="aim-foot">
+                    <Button priority="default" onClick={backToMenu}>Cancelar</Button>
+                    <Button priority="primary" disabled={!sel} onClick={() => add({ from: 'bot', kind: 'eduCurso', benefitId: b.id, tipo: m.tipo })}>Continuar</Button>
+                </div>
+            </div>
+            <Time />
+        </>;
+    }
+
+    if (m.kind === 'eduCurso') {
+        const b = specOf(m.benefitId);
+        const valid = (form.eduInstituicao || '').trim() && (form.eduCurso || '').trim() && form.eduInicio && (form.eduValor || '').trim() && form.eduPeriodicidade;
+        const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+        return <>
+            <div className="aim-bot">
+                <div className="aim-card-title"><i className="fa fa-school" /> Dados do curso — {form.eduModalidade}</div>
+                <div className="aim-flabel">Instituição de ensino <span className="req">*</span></div>
+                <input className="aim-text" placeholder="Ex: Wizard Blumenau" value={form.eduInstituicao} onChange={e => set('eduInstituicao', e.target.value)} />
+                <div className="aim-flabel">Nome do curso <span className="req">*</span></div>
+                <input className="aim-text" placeholder="Ex: Inglês — nível intermediário" value={form.eduCurso} onChange={e => set('eduCurso', e.target.value)} />
+                <div className="aim-grid2">
+                    <div>
+                        <div className="aim-flabel">Início do curso <span className="req">*</span></div>
+                        <input className="aim-text" type="date" value={form.eduInicio} onChange={e => set('eduInicio', e.target.value)} />
+                    </div>
+                    <div>
+                        <div className="aim-flabel">Término previsto</div>
+                        <input className="aim-text" type="date" value={form.eduTermino} onChange={e => set('eduTermino', e.target.value)} />
+                    </div>
+                </div>
+                <div className="aim-grid2">
+                    <div>
+                        <div className="aim-flabel">Valor do curso (R$) <span className="req">*</span></div>
+                        <input className="aim-text" placeholder="0,00" value={form.eduValor} onChange={e => set('eduValor', e.target.value)} />
+                    </div>
+                    <div>
+                        <div className="aim-flabel">Periodicidade do pagamento <span className="req">*</span></div>
+                        <select className="aim-text" value={form.eduPeriodicidade} onChange={e => set('eduPeriodicidade', e.target.value)}>
+                            <option value="">Selecione uma opção</option>
+                            {EDU_PERIODICIDADE.map(p => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                    </div>
+                </div>
+                <div className="aim-note"><i className="fa fa-info-circle" /> O valor subsidiado é calculado pelo RH conforme a regra da modalidade ({eduSubText(eduModOf(form))}).</div>
+                <div className="aim-foot">
+                    <Button priority="default" onClick={() => goBack('eduCurso')}>Voltar</Button>
+                    <Button priority="primary" disabled={!valid} onClick={() => add({ from: 'bot', kind: 'docsRequired', benefitId: b.id, tipo: m.tipo })}>Continuar</Button>
+                </div>
+            </div>
+            <Time />
+        </>;
+    }
+
     if (m.kind === 'docsRequired') {
         const b = specOf(m.benefitId);
         const isHealth = !!FLOW[b.id];
+        const isEdu = b.id === 'edu';
+        const eduReq = isEdu ? eduDocsOf(form) : null;
         return <>
             <div className="aim-bot">
                 <div className="aim-card-title"><i className="fa fa-file-circle-check" /> Documentos Necessários</div>
                 {isHealth
                     ? <div className="aim-note"><i className="fa fa-info-circle" /> Seus documentos pessoais já constam no seu cadastro na empresa, e os de dependentes já cadastrados também. Os documentos abaixo são exigidos <b>apenas se você cadastrar um novo dependente</b>. Baixe, preencha e assine os formulários — eles serão anexados na etapa de Anexos.</div>
                     : <div className="aim-note"><i className="fa fa-info-circle" /> Prepare os documentos obrigatórios e baixe os formulários abaixo. Tudo será anexado na etapa de Anexos.</div>}
-                {b.required.length > 0 && <div className="aim-box">
+                {((isEdu ? eduReq : b.required) || []).length > 0 && <div className="aim-box">
                     <div className="aim-card-title" style={{ fontSize: 15, marginBottom: 6 }}><i className="fa fa-file-lines" style={{ fontSize: 15 }} /> Documentos {isHealth ? 'dos dependentes' : 'obrigatórios'}</div>
-                    {b.required.map(d => (
+                    {(isEdu ? eduReq : b.required).map(d => (
                         <div key={d.n} className="aim-checkrow">
                             <span className="ck"><i className="fa fa-check" /></span>
                             <div className="ct"><b>{d.n} {d.depOnly && <span className="up-tag dep"><i className="fa fa-user-plus" /> apenas para novos dependentes</span>}</b><div className="s">{d.s}</div></div>
@@ -706,7 +805,7 @@ function MsgView({ m, onMenu, onBenefit, onAction, uploads, onUpload, form, setF
         const b = specOf(m.benefitId);
         const isHealth = !!FLOW[b.id];
         const hasNewDeps = (form.newDeps || []).length > 0;
-        const reqDocs = b.required.filter(d => !d.depOnly || hasNewDeps);
+        const reqDocs = b.id === 'edu' ? eduDocsOf(form) : b.required.filter(d => !d.depOnly || hasNewDeps);
         const dls = b.downloads.filter(d => (!d.depOnly || hasNewDeps) && (!/Portabilidade/i.test(d.n) || form.portab === 'sim'));
         const allItems = [...reqDocs, ...dls];
         const allDone = allItems.every(d => uploads[d.n]);
@@ -730,9 +829,9 @@ function MsgView({ m, onMenu, onBenefit, onAction, uploads, onUpload, form, setF
         return <>
             <div className="aim-bot">
                 <div className="aim-card-title"><i className="fa fa-paperclip" /> Anexar Documentos</div>
-                <div style={{ fontSize: 13.5, color: 'var(--sds-fg-muted)', marginBottom: 14 }}>Anexe os formulários que você baixou, preencheu e assinou{reqDocs.length > 0 ? ', além dos documentos dos novos dependentes.' : '.'}</div>
+                <div style={{ fontSize: 13.5, color: 'var(--sds-fg-muted)', marginBottom: 14 }}>Anexe os formulários que você baixou, preencheu e assinou{reqDocs.length > 0 ? (b.id === 'edu' ? `, além dos documentos exigidos pela modalidade ${form.eduModalidade}.` : ', além dos documentos dos novos dependentes.') : '.'}</div>
                 {reqDocs.length > 0 && <>
-                    <div className="aim-uplabel">Documentos dos novos dependentes</div>
+                    <div className="aim-uplabel">{b.id === 'edu' ? `Documentos da modalidade ${form.eduModalidade}` : 'Documentos dos novos dependentes'}</div>
                     {reqDocs.map(d => renderRow(d, false))}
                 </>}
                 {reqDocs.length === 0 && isHealth && <div className="aim-note"><i className="fa fa-circle-check" /> Seus documentos e os dos dependentes já cadastrados constam no sistema — nada a anexar aqui.</div>}
@@ -756,7 +855,9 @@ function MsgView({ m, onMenu, onBenefit, onAction, uploads, onUpload, form, setF
         const newDeps = (form.newDeps || []).map(d => ({ nome: d.nome || 'Não informado', cpf: d.cpf || 'Não informado', nasc: d.nasc || 'Não informado', parentesco: d.parentesco || 'Não informado' }));
         const deps = [...selDeps, ...newDeps];
         const files = Object.entries(uploads);
-        const planoLabel = b.id === 'odonto' ? 'plano odontológico' : 'plano de saúde';
+        const isEdu = b.id === 'edu';
+        const fmtD = d => (d ? d.split('-').reverse().join('/') : '—');
+        const planoLabel = isEdu ? 'Auxílio Educação' : b.id === 'odonto' ? 'plano odontológico' : 'plano de saúde';
         return <>
             <div className="aim-bot">
                 <div className="aim-card-title"><i className="fa fa-eye" /> Revisão &amp; Envio</div>
@@ -769,6 +870,21 @@ function MsgView({ m, onMenu, onBenefit, onAction, uploads, onUpload, form, setF
                         <div><div className="k">Matrícula</div><div className="v">001234</div></div>
                     </div>
                 </div>
+
+                {isEdu && <div className="rev-sec">
+                    <div className="rev-head"><span className="rev-title"><i className="fa fa-graduation-cap" /> Curso e modalidade</span>
+                        <button className="rev-edit" onClick={() => goBack('eduModalidade')}><i className="fa fa-pen" /> Alterar</button></div>
+                    <div className="aim-grid">
+                        <div><div className="k">Modalidade</div><div className="v">{form.eduModalidade || '—'}</div></div>
+                        <div><div className="k">Regra de subsídio</div><div className="v">{eduSubText(eduModOf(form))}</div></div>
+                        <div><div className="k">Instituição</div><div className="v">{form.eduInstituicao || '—'}</div></div>
+                        <div><div className="k">Curso</div><div className="v">{form.eduCurso || '—'}</div></div>
+                        <div><div className="k">Início</div><div className="v">{fmtD(form.eduInicio)}</div></div>
+                        <div><div className="k">Término previsto</div><div className="v">{fmtD(form.eduTermino)}</div></div>
+                        <div><div className="k">Valor do curso</div><div className="v">R$ {form.eduValor || '—'}</div></div>
+                        <div><div className="k">Periodicidade</div><div className="v">{form.eduPeriodicidade || '—'}</div></div>
+                    </div>
+                </div>}
 
                 {isHealth && <div className="rev-sec">
                     <div className="rev-head"><span className="rev-title"><i className={`fa ${b.icon}`} /> Plano Selecionado</span>
@@ -810,7 +926,9 @@ function MsgView({ m, onMenu, onBenefit, onAction, uploads, onUpload, form, setF
 
                 <label className="aim-confirm boxed">
                     <span className={`cb ${form.revConfirm ? 'checked' : ''}`} onClick={() => setForm(f => ({ ...f, revConfirm: !f.revConfirm }))}>{form.revConfirm && <i className="fa fa-check" />}</span>
-                    <span>Declaro ciência da política de benefícios, prazos de carência e condições do {planoLabel}.</span>
+                    <span>{isEdu
+                        ? `Declaro ciência da política de Auxílio Educação, das condições da modalidade ${form.eduModalidade || 'selecionada'} e de que a solicitação depende de aprovação do gestor.`
+                        : `Declaro ciência da política de benefícios, prazos de carência e condições do ${planoLabel}.`}</span>
                 </label>
 
                 <div className="aim-foot">

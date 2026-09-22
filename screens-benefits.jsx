@@ -1355,6 +1355,11 @@ function AnalistaScreen({ onOpenFlyout }) {
     const toast = useToast();
 
     if (newPolicyType) {
+        if (newPolicyType.id === 'edu') return <EducationPolicyEditor
+            type={newPolicyType}
+            onBack={() => setNewPolicyType(null)}
+            onSaved={p => { setExtraPolicies(list => [...list, p]); setNewPolicyType(null); }}
+        />;
         return <NewPolicyEditor
             type={newPolicyType}
             onBack={() => setNewPolicyType(null)}
@@ -1363,6 +1368,11 @@ function AnalistaScreen({ onOpenFlyout }) {
     }
 
     if (editPolicy) {
+        if (editPolicy.kind === 'edu' || editPolicy.id === 'edu') return <EducationPolicyEditor
+            policy={editPolicy}
+            onBack={() => setEditPolicy(null)}
+            onSaved={p => { setExtraPolicies(list => list.map(x => (x.id === p.id ? p : x))); setEditPolicy(p); }}
+        />;
         if (editPolicy.id === 'vt') return <TransportPolicyEditor policy={editPolicy} onBack={() => setEditPolicy(null)} />;
         return <HealthPolicyEditor policy={editPolicy} onBack={() => setEditPolicy(null)} />;
     }
@@ -1394,8 +1404,8 @@ function AnalistaScreen({ onOpenFlyout }) {
                 {tab === 'visao' && (
                     <>
                         <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 24 }}>
-                            <Kpi icon="fa-file-alt" soft="soft-blue" label="Total de Políticas" value="3" />
-                            <Kpi icon="fa-cog"      soft="soft-blue" label="Políticas Ativas"  value="2" />
+                            <Kpi icon="fa-file-alt" soft="soft-blue" label="Total de Políticas" value="4" />
+                            <Kpi icon="fa-cog"      soft="soft-blue" label="Políticas Ativas"  value="3" />
                             <Kpi icon="fa-users"    soft="soft-blue" label="Beneficiários"     value="450" />
                             <Kpi icon="fa-file-alt" soft="soft-blue" label="Em Revisão"        value="1" />
                         </div>
@@ -1403,7 +1413,7 @@ function AnalistaScreen({ onOpenFlyout }) {
                             {[...RH_POLICIES, ...extraPolicies].map(p => (
                                 <BenefitCard key={p.id} {...p}
                                     onClick={() => {
-                                        if (p.id === 'ps' || p.id === 'vt') { setEditPolicy(p); return; }
+                                        if (p.id === 'ps' || p.id === 'vt' || p.id === 'edu' || p.kind === 'edu') { setEditPolicy(p); return; }
                                         toast({
                                             kind: p.status === 'Ativa' ? 'info' : 'succ',
                                             title: p.title,

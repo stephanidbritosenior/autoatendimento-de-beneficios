@@ -217,6 +217,7 @@ const COLAB_BENEFITS = [
     { id: 'vt',   tile: 'tile-blue',   icon: 'fa-bus',          title: 'Vale-Transporte',     desc: 'Benefício para deslocamento residência/trabalho.', status: 'Disponível', statusColor: 'blue',  meta: 'Desconto de 6% do salário', link: 'Solicitar' },
     { id: 'ps',   tile: 'tile-red',    icon: 'fa-heart',        title: 'Plano de Saúde',       desc: 'Cobertura médica e hospitalar nacional.',          status: 'Ativo',      statusColor: 'green',  meta: 'Individual ou familiar',    link: 'Gerenciar' },
     { id: 'po',   tile: 'tile-green',  icon: 'fa-tooth',        title: 'Plano Odontológico',   desc: 'Cobertura para tratamentos dentários.',            status: 'Disponível', statusColor: 'blue',   meta: 'Consultas, limpezas e canais', link: 'Solicitar' },
+    { id: 'edu',  tile: 'tile-purple', icon: 'fa-graduation-cap', title: 'Auxílio Educação',   desc: 'Subsídio para cursos de idiomas e graduação.',     status: 'Disponível', statusColor: 'blue',   meta: 'Idiomas · Graduação',          link: 'Solicitar' },
 ];
 
 const COLAB_TICKETS = [
@@ -235,6 +236,8 @@ const COLAB_TICKETS = [
         ] } },
     { id: '#4733', icon: 'fa-bus',     soft: 'soft-blue',   title: 'Atualização de rota — Vale-Transporte', meta: 'Aberto em 14/05/2026 · Protocolo #4733', status: 'Concluído', color: 'green',
       detail: { tile: 'tile-blue', fields: [['Tipo de solicitação', 'Inclusão'], ['Linha de Transporte', 'BLUMOB'], ['Valor do Passe (Ida e Volta)', 'R$ 9,40']], deps: [], docs: [] } },
+    { id: '#4715', icon: 'fa-graduation-cap', soft: 'soft-purple', title: 'Solicitação — Auxílio Educação (Idiomas)', meta: 'Aberto em 12/05/2026 · Protocolo #4715', status: 'Aprovado', color: 'green',
+      detail: { tile: 'tile-purple', fields: [['Benefício', 'Auxílio Educação'], ['Modalidade', 'Idiomas'], ['Instituição', 'Wizard Blumenau'], ['Curso', 'Inglês — nível intermediário'], ['Valor do curso', 'R$ 620,00'], ['Periodicidade', 'Mensal'], ['Subsídio aprovado', '50% · teto de R$ 400,00']], deps: [], docs: ['comprovante_matricula.pdf', 'contrato_pagamento.pdf'] } },
     { id: '#4688', icon: 'fa-baby',    soft: 'soft-orange', title: 'Auxílio Creche — envio de documentos', meta: 'Aberto em 09/05/2026 · Protocolo #4688', status: 'Pendente',  color: 'orange',
       detail: { tile: 'tile-teal', fields: [['Benefício', 'Auxílio Creche'], ['Nome da criança', 'Sophia Almeida'], ['Data de nascimento', '12/03/2024'], ['Instituição', 'Creche Mundo Feliz'], ['Valor mensal', 'R$ 980,00']], deps: [], docs: ['certidao_nascimento.pdf', 'comprovante_matricula.pdf'] } },
 ];
@@ -243,6 +246,7 @@ const RH_POLICIES = [
     { id: 'vt', tile: 'tile-blue',  icon: 'fa-bus',   title: 'Vale-Transporte',   desc: 'Gerencie políticas de vale-transporte e benefícios de deslocamento.', status: 'Ativa',   statusColor: 'green', meta: '187 beneficiários', link: 'Configurar política' },
     { id: 'ps', tile: 'tile-red',   icon: 'fa-heart', title: 'Plano de Saúde',     desc: 'Configure regras e condições para planos de saúde corporativos.',     status: 'Ativa',   statusColor: 'green', meta: '263 beneficiários', link: 'Configurar política' },
     { id: 'po', tile: 'tile-green', icon: 'fa-tooth', title: 'Plano Odontológico', desc: 'Defina políticas de plano odontológico para colaboradores e dependentes.', status: 'Inativa', statusColor: 'gray',  meta: '0 beneficiários',   link: 'Ativar política' },
+    { id: 'edu', kind: 'edu', tile: 'tile-purple', icon: 'fa-graduation-cap', title: 'Auxílio Educação', desc: 'Configure modalidades, condições e regras de subsídio para cursos.', status: 'Ativa', statusColor: 'green', meta: 'Idiomas · Graduação', link: 'Configurar política' },
 ];
 
 const RH_REQUESTS = [
